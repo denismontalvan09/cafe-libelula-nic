@@ -28,7 +28,7 @@
       --shadow: 0 20px 60px rgba(0,0,0,.18);
     }
     * { box-sizing: border-box; }
-    url('Gemini_Generated_Image_5ozo4b5ozo4b5ozo.jpg') center top/cover no-repeat;
+    html { scroll-behavior: smooth; scroll-padding-top: 74px; }
     body {
       margin: 0;
       background: var(--green-deep);
@@ -40,10 +40,8 @@
     .page-bg {
       position: fixed; inset: 0; z-index: -4;
       background:
-        /* Reduje un poco la opacidad del oscurecimiento para que los detalles de tu nueva imagen destaquen más */
-        linear-gradient(180deg, rgba(11,22,15,.65), rgba(11,22,15,.85)),
-        /* Aquí está tu nueva imagen de fondo */
-        url('Gemini_Generated_Image_5ozo4b5ozo4b5ozo.jpg') center center/cover no-repeat;
+        linear-gradient(180deg, rgba(11,22,15,.75), rgba(11,22,15,.92)),
+        url('Gemini_Generated_Image_5ozo4b5ozo4b5ozo.jpg') center top/cover no-repeat;
     }
     .grain {
       position: fixed; inset: 0; z-index: -3; pointer-events: none; opacity: .06;
@@ -76,8 +74,7 @@
     .hero-card {
       width: min(560px, 100%); text-align: center; color: var(--cream);
       padding: 46px 24px 38px;
-      /* Oscurecí ligeramente la tarjeta para que contraste mejor con la nueva imagen */
-      background: linear-gradient(160deg, rgba(12,29,17,.92), rgba(20,39,25,.75));
+      background: linear-gradient(160deg, rgba(12,29,17,.88), rgba(20,39,25,.60));
       border: 1px solid rgba(229,201,137,.34);
       border-radius: 32px;
       box-shadow: 0 30px 90px rgba(0,0,0,.32);
@@ -254,7 +251,7 @@
     }
     .generate-desc-btn:hover { opacity: 1; transform: scale(1.1); }
     
-    .ai-generated-desc { <div class="location-line"><span>📍</span><div><b>Sucursal Chinandega</b><p>Iglesia San Antonio, 75 varas al este. Chinandega, Nicaragua.</p></div></div>
+    .ai-generated-desc {
       display: none; margin-top: 8px; padding: 8px 12px;
       background: rgba(184, 148, 85, 0.1); border-left: 2px solid var(--gold);
       border-radius: 0 8px 8px 0; font-size: 10.5px; color: var(--ink);
@@ -661,6 +658,7 @@
         <h2>Visítanos</h2>
         <div class="location-line"><span>📍</span><div><b>Referencia principal</b><p>Santuario San Francisco de Asís, León — media cuadra al oeste.</p></div></div>
         <div class="location-line"><span>📍</span><div><b>Otra referencia</b><p>Colegio La Salle — media cuadra al este.</p></div></div>
+        <div class="location-line"><span>📍</span><div><b>Sucursal Chinandega</b><p>Iglesia San Antonio, 75 varas al este. Chinandega, Nicaragua.</p></div></div>
         <div class="contact-placeholder"><span>📲</span><div><b>Reservaciones y consultas</b><p>Llámanos vía WhatsApp al <strong>8493-4505</strong>.</p><a class="whatsapp-btn" href="https://wa.me/50584934505" target="_blank" rel="noopener">Abrir WhatsApp →</a></div></div>
       </div>
     </section>
