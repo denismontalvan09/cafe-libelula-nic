@@ -40,8 +40,10 @@
     .page-bg {
       position: fixed; inset: 0; z-index: -4;
       background:
-        linear-gradient(180deg, rgba(11,22,15,.75), rgba(11,22,15,.92)),
-        url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1920&q=80') center top/cover no-repeat;
+        /* Reduje un poco la opacidad del oscurecimiento para que los detalles de tu nueva imagen destaquen más */
+        linear-gradient(180deg, rgba(11,22,15,.65), rgba(11,22,15,.85)),
+        /* Aquí está tu nueva imagen de fondo */
+        url('Gemini_Generated_Image_5ozo4b5ozo4b5ozo.jpg') center center/cover no-repeat;
     }
     .grain {
       position: fixed; inset: 0; z-index: -3; pointer-events: none; opacity: .06;
@@ -74,7 +76,8 @@
     .hero-card {
       width: min(560px, 100%); text-align: center; color: var(--cream);
       padding: 46px 24px 38px;
-      background: linear-gradient(160deg, rgba(12,29,17,.88), rgba(20,39,25,.60));
+      /* Oscurecí ligeramente la tarjeta para que contraste mejor con la nueva imagen */
+      background: linear-gradient(160deg, rgba(12,29,17,.92), rgba(20,39,25,.75));
       border: 1px solid rgba(229,201,137,.34);
       border-radius: 32px;
       box-shadow: 0 30px 90px rgba(0,0,0,.32);
