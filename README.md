@@ -1,2 +1,2 @@
 # cafe-libelula-nic
-Menu  digital de los productos 
+Menu  digital "Donde cada sorbo cuenta una historia."
