@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#172719">
+  <meta name="description" content="Menú digital interactivo de Café Libélula, León, Nicaragua. Más que un café.">
+  <title>Café Libélula | Más que un café</title>
+
+  <!-- Librería para generar el código QR dinámico -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+    :root {
+      --green: #112218;
+      --green-deep: #0b160f;
+      --green-soft: #213727;
+      --cream: #f4ead6;
+      --paper: #fbf4e7;
+      --paper-2: #f2e7d3;
+      --gold: #b89455;
+      --gold-light: #e5c989;
+      --ink: #17251a;
+      --muted: #756f63;
+      --line: rgba(33,55,39,.14);
+      --shadow: 0 20px 60px rgba(0,0,0,.18);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 74px; }
+    body {
+      margin: 0;
+      background: var(--green-deep);
+      color: var(--ink);
+      font-family: 'DM Sans', Arial, sans-serif;
+      overflow-x: hidden;
+    }
+    
+    .page-bg {
+      position: fixed; inset: 0; z-index: -4;
+      background:
+        linear-gradient(180deg, rgba(11,22,15,.75), rgba(11,22,15,.92)),
+        url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1920&q=80') center top/cover no-repeat;
+    }
+    .grain {
+      position: fixed; inset: 0; z-index: -3; pointer-events: none; opacity: .06;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+    }
+    
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 13px max(18px, calc((100vw - 1050px)/2));
+      background: rgba(11,27,15,.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(229,201,137,.18);
+    }
+    .brand-mini { color: var(--cream); text-decoration: none; font-size: 11px; letter-spacing: .16em; font-weight: 700; display: flex; gap: 9px; align-items: center; }
+    .brand-dragonfly { color: var(--gold-light); font-size: 17px; }
+    .menu-toggle { border: 0; background: none; color: var(--cream); font-size: 23px; cursor: pointer; }
+    .mobile-nav {
+      position: fixed; top: 56px; right: 14px; z-index: 49;
+      background: rgba(15,32,20,.98); border: 1px solid rgba(229,201,137,.28);
+      border-radius: 16px; padding: 8px; display: none; box-shadow: var(--shadow);
+    }
+    .mobile-nav.open { display: grid; }
+    .mobile-nav a { color: var(--cream); text-decoration: none; padding: 12px 18px; font-size: 12px; }
+    
+    .hero {
+      min-height: 100svh; display: grid; place-items: center;
+      padding: 88px 16px 50px; position: relative;
+    }
+    .hero-card {
+      width: min(560px, 100%); text-align: center; color: var(--cream);
+      padding: 46px 24px 38px;
+      background: linear-gradient(160deg, rgba(12,29,17,.88), rgba(20,39,25,.60));
+      border: 1px solid rgba(229,201,137,.34);
+      border-radius: 32px;
+      box-shadow: 0 30px 90px rgba(0,0,0,.32);
+      backdrop-filter: blur(7px);
+      position: relative;
+    }
+    .hero-card:before, .hero-card:after {
+      content: ""; position: absolute; width: 55px; height: 55px; border-color: rgba(229,201,137,.4); pointer-events: none;
+    }
+    .hero-card:before { left: 15px; top: 15px; border-left: 1px solid; border-top: 1px solid; border-radius: 18px 0 0 0; }
+    .hero-card:after { right: 15px; bottom: 15px; border-right: 1px solid; border-bottom: 1px solid; border-radius: 0 0 18px 0; }
+    
+    .hero-symbol { font-size: 38px; color: var(--gold-light); margin-bottom: 12px; }
+    .eyebrow { margin: 0; color: var(--gold-light); font-size: 9px; font-weight: 700; letter-spacing: .24em; }
+    h1, h2, h3 { font-family: 'Cormorant Garamond', Georgia, serif; }
+    h1 { font-size: clamp(55px, 16vw, 96px); line-height: .76; letter-spacing: .04em; margin: 20px 0 16px; font-weight: 600; }
+    h1 span { font-size: .57em; letter-spacing: .13em; }
+    .tagline { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 25px; color: var(--gold-light); margin: 0 0 12px; }
+    .hero-copy { font-size: 12px; line-height: 1.7; max-width: 350px; margin: 0 auto 27px; color: #efe7d8; }
+    .primary-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 20px;
+      padding: 14px 23px; border-radius: 999px;
+      color: var(--green); background: var(--gold-light);
+      text-decoration: none; font-size: 10px; font-weight: 700; letter-spacing: .1em;
+      box-shadow: 0 8px 24px rgba(0,0,0,.2);
+      border: none; cursor: pointer; transition: transform 0.2s;
+    }
+    .primary-btn:hover { transform: translateY(-2px); }
+    .primary-btn span { font-size: 16px; }
+    
+    .floating-motif { position: absolute; color: rgba(229,201,137,.35); font-family: Georgia, serif; pointer-events: none; }
+    .motif-left { left: 7%; top: 40%; font-size: 25px; transform: rotate(-15deg); }
+    .motif-right { right: 7%; top: 27%; font-size: 30px; }
+    
+    .section, .menu-section, .visit-section { width: min(1000px,100%); margin: 0 auto; padding: 82px 18px; }
+    .categories {
+      background: linear-gradient(180deg, rgba(251,244,231,.98), rgba(242,231,211,.98));
+      border-radius: 38px 38px 0 0;
+      box-shadow: 0 -35px 100px rgba(0,0,0,.24);
+    }
+    .section-heading { text-align: center; max-width: 620px; margin: 0 auto 32px; }
+    .section-heading h2, .visit-card h2 { font-size: 50px; line-height: .9; margin: 10px 0 12px; }
+    .section-heading p:last-child { font-size: 11px; color: var(--muted); line-height: 1.65; }
+    .category-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .category-card {
+      display: grid; grid-template-columns: 44px 1fr 18px; align-items: center; gap: 10px;
+      padding: 17px; border: 1px solid var(--line); border-radius: 20px;
+      background: rgba(255,255,255,.72); color: var(--ink); text-decoration: none;
+      transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+    }
+    .category-card:hover { transform: translateY(-3px); border-color: rgba(184,148,85,.7); box-shadow: 0 12px 30px rgba(53,45,30,.08); }
+    .featured-category { background: linear-gradient(135deg, #f7ecd6, #fffaf1); border-color: rgba(184,148,85,.35); }
+    .cat-icon, .cat-illustration { font-size: 26px; text-align: center; }
+    .cat-illustration { font-family: Georgia, serif; color: #8e6c32; }
+    .category-card b { display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; line-height: .95; }
+    .category-card small { display: block; color: var(--muted); font-size: 9px; margin-top: 5px; line-height: 1.4; }
+    .category-card i { font-style: normal; color: #8e6c32; font-size: 15px; }
+    
+    .menu-section { background: rgba(251,244,231,.98); border-top: 1px solid rgba(23,37,26,.07); position: relative; }
+    .menu-section:nth-of-type(even) { background: rgba(246,237,220,.98); }
+    .menu-title { display: flex; gap: 14px; align-items: center; margin-bottom: 11px; }
+    .menu-title > span { font-size: 32px; filter: saturate(.7); }
+    .menu-title h2 { font-size: 48px; margin: 5px 0 0; line-height: .86; }
+    .section-note { font-size: 11px; color: var(--muted); margin: 0 0 23px; }
+    .menu-card {
+      background: rgba(255,255,255,.73);
+      border: 1px solid var(--line); border-radius: 21px;
+      padding: 19px; margin: 12px 0;
+      box-shadow: 0 8px 28px rgba(35,31,22,.045);
+    }
+    .menu-card h3 { font-size: 28px; margin: 0 0 13px; color: var(--green); }
+    
+    .item { display: flex; justify-content: space-between; gap: 17px; padding: 12px 0; border-bottom: 1px dashed rgba(23,37,26,.16); }
+    .item:last-of-type { border-bottom: 0; }
+    .item b { font-size: 12px; line-height: 1.35; }
+    .item small { display: block; color: var(--muted); font-size: 9.5px; line-height: 1.5; margin-top: 4px; max-width: 680px; }
+    .item strong, .section-price { white-space: nowrap; color: #896a2f; font-size: 12px; font-weight: 700; }
+    
+    .featured { background: rgba(224,235,197,.42); margin: 4px -8px; padding: 11px 8px; border-radius: 11px; }
+    .card-foot { font-size: 9.5px; color: var(--muted); font-style: italic; line-height: 1.55; margin: 12px 0 0; }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .chips span { border: 1px solid rgba(137,106,47,.30); padding: 7px 10px; border-radius: 999px; font-size: 9px; background: rgba(184,148,85,.07); }
+    .bullet-list { display: grid; gap: 9px; }
+    .bullet-list span { font-size: 10.5px; line-height: 1.45; }
+    .bullet-list span:before { content: '✦'; color: #9a7839; margin-right: 8px; font-size: 8px; }
+    .add-on { margin: 15px 0 0; padding: 10px; border-radius: 11px; background: rgba(224,235,197,.42); font-size: 10px; }
+    .sizes { float: right; font-family: 'DM Sans', sans-serif; font-size: 8.5px; color: var(--muted); font-weight: 500; }
+    .back-link { display: block; width: max-content; margin: 26px auto 0; color: #735c32; text-decoration: none; font-size: 10px; font-weight: 700; }
+    
+    .visit-section { background: linear-gradient(145deg, rgba(16,34,21,.98), rgba(22,46,28,.96)); color: var(--cream); }
+    .visit-card { max-width: 720px; margin: auto; }
+    .visit-card h2 { color: var(--cream); }
+    .location-line, .contact-placeholder { display: flex; gap: 14px; padding: 18px 0; border-bottom: 1px solid rgba(229,201,137,.18); }
+    .location-line span, .contact-placeholder span { font-size: 22px; }
+    .location-line b, .contact-placeholder b { font-size: 12px; color: var(--gold-light); }
+    .location-line p, .contact-placeholder p { margin: 5px 0 0; font-size: 10.5px; line-height: 1.6; color: #ded5c4; }
+    .whatsapp-btn { display: inline-flex; margin-top: 12px; padding: 10px 15px; border: 1px solid rgba(229,201,137,.45); border-radius: 999px; color: var(--gold-light); text-decoration: none; font-size: 9px; font-weight: 700; letter-spacing: .07em; }
+    
+    .bottom-nav {
+      position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%);
+      z-index: 45; width: min(460px, calc(100% - 24px));
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      background: rgba(12,27,16,.94); backdrop-filter: blur(15px);
+      border: 1px solid rgba(229,201,137,.25); border-radius: 18px;
+      padding: 7px; box-shadow: 0 14px 40px rgba(0,0,0,.3);
+    }
+    .bottom-nav a { color: #eee5d6; text-decoration: none; text-align: center; font-size: 8px; padding: 5px 2px; }
+    .bottom-nav span { display: block; color: var(--gold-light); font-size: 15px; margin-bottom: 2px; }
+    
+    footer { padding: 72px 18px 105px; text-align: center; background: #0d1910; color: var(--cream); }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 28px; letter-spacing: .14em; color: var(--gold-light); }
+    footer p { margin: 4px 0 14px; font-family: 'Cormorant Garamond', serif; color: #d5c29a; }
+    footer small { font-size: 9px; color: #9c9a8e; }
+    
+    .ai-fab {
+      position: fixed; bottom: 20px; right: 20px; z-index: 100;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: var(--green-deep); border: none; border-radius: 999px;
+      padding: 14px 22px; font-weight: 700; font-size: 14px;
+      cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      display: flex; align-items: center; gap: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .ai-fab:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
+    
+    .ai-chat-window {
+      position: fixed; bottom: 85px; right: 20px;
+      width: 340px; height: 450px;
+      background: var(--paper); border: 1px solid var(--gold);
+      border-radius: 24px; box-shadow: var(--shadow);
+      display: flex; flex-direction: column;
+      z-index: 99; overflow: hidden;
+      transform: scale(0); transform-origin: bottom right;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .ai-chat-window.open { transform: scale(1); }
+    
+    .ai-chat-header {
+      background: var(--green); color: var(--cream);
+      padding: 15px 20px; display: flex; justify-content: space-between;
+      align-items: center; border-bottom: 2px solid var(--gold);
+    }
+    .ai-chat-header b { font-family: 'Cormorant Garamond', serif; font-size: 20px; line-height: 1; }
+    .ai-chat-header button { background: none; border: none; color: var(--gold-light); font-size: 24px; cursor: pointer; line-height: 1; }
+    
+    .ai-chat-messages {
+      flex: 1; padding: 15px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 12px;
+      background: linear-gradient(to bottom, var(--paper), var(--paper-2));
+    }
+    
+    .ai-msg, .user-msg { padding: 10px 14px; border-radius: 16px; font-size: 12.5px; line-height: 1.4; max-width: 85%; }
+    .ai-msg { background: white; color: var(--ink); border: 1px solid var(--line); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .user-msg { background: var(--green-soft); color: var(--cream); align-self: flex-end; border-bottom-right-radius: 4px; }
+    
+    .ai-chat-input { display: flex; padding: 12px; background: white; border-top: 1px solid var(--line); }
+    .ai-chat-input input {
+      flex: 1; border: 1px solid var(--line); border-radius: 999px;
+      padding: 8px 14px; font-size: 13px; outline: none; background: var(--paper);
+    }
+    .ai-chat-input input:focus { border-color: var(--gold); }
+    .ai-chat-input button {
+      background: var(--gold); color: var(--green-deep); border: none;
+      border-radius: 999px; padding: 8px 16px; margin-left: 8px;
+      font-weight: 700; cursor: pointer; font-size: 12px; transition: background 0.2s;
+    }
+    .ai-chat-input button:hover { background: var(--gold-light); }
+    .ai-loading { font-size: 11px; color: var(--muted); align-self: flex-start; padding: 0 10px; display: none; font-style: italic; }
+
+    .generate-desc-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 12px; margin-left: 5px; opacity: 0.6;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .generate-desc-btn:hover { opacity: 1; transform: scale(1.1); }
+    
+    .ai-generated-desc {
+      display: none; margin-top: 8px; padding: 8px 12px;
+      background: rgba(184, 148, 85, 0.1); border-left: 2px solid var(--gold);
+      border-radius: 0 8px 8px 0; font-size: 10.5px; color: var(--ink);
+      font-style: italic; line-height: 1.5;
+    }
+    .ai-generated-desc.loading { display: block; color: var(--muted); }
+
+    .qr-modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(11, 22, 15, 0.88); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .qr-modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .qr-card-container {
+      background: var(--paper); border: 2px solid var(--gold);
+      border-radius: 28px; width: min(440px, 100%);
+      padding: 24px; box-shadow: var(--shadow);
+      text-align: center; position: relative;
+      max-height: 92vh; overflow-y: auto;
+    }
+    .qr-close-btn {
+      position: absolute; top: 16px; right: 16px;
+      background: none; border: none; font-size: 24px;
+      color: var(--ink); cursor: pointer; line-height: 1;
+    }
+    .qr-preview-card {
+      background: linear-gradient(145deg, #112218, #182e21);
+      border: 2px solid var(--gold); border-radius: 20px;
+      padding: 26px 20px; margin: 18px 0; color: var(--cream);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+      position: relative; display: flex; flex-direction: column; align-items: center;
+    }
+    .qr-frame {
+      position: relative; padding: 14px; background: #ffffff;
+      border-radius: 18px; border: 3px solid var(--gold-light);
+      display: inline-block; margin: 12px 0;
+    }
+    .qr-frame canvas, .qr-frame img { display: block; margin: auto; }
+    .qr-dragonfly-overlay {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px; height: 44px; background: #112218;
+      border: 2px solid var(--gold); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold-light); font-size: 19px; box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+      pointer-events: none;
+    }
+    .qr-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+    .qr-btn {
+      padding: 11px 20px; border-radius: 999px; font-weight: 700;
+      font-size: 11px; cursor: pointer; border: none;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .qr-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+    .qr-btn-primary { background: var(--gold); color: var(--green-deep); }
+    .qr-btn-secondary { background: var(--green-soft); color: var(--cream); border: 1px solid var(--gold); }
+    
+    .qr-input-group { margin-top: 14px; text-align: left; }
+    .qr-input-group label { font-size: 11px; font-weight: 600; color: var(--ink); display: block; margin-bottom: 4px; }
+    .qr-input-group input {
+      width: 100%; padding: 9px 12px; border: 1px solid var(--line);
+      border-radius: 10px; font-size: 12px; font-family: inherit;
+      background: #fff; box-sizing: border-box;
+    }
+
+    @media(min-width: 700px){
+      .menu-toggle { display: none; }
+      .mobile-nav { display: flex; position: static; background: none; border: 0; box-shadow: none; padding: 0; gap: 20px; }
+      .mobile-nav a { padding: 0; font-size: 10px; }
+      .category-grid { grid-template-columns: repeat(3, 1fr); }
+      .hero-card { padding: 56px 52px 44px; }
+      .bottom-nav { display: none; }
+    }
+    @media(max-width: 420px){
+      .category-grid { grid-template-columns: 1fr; }
+      .category-card { padding: 15px; }
+      .menu-section, .section, .visit-section { padding-left: 14px; padding-right: 14px; }
+      .menu-card { padding: 15px; }
+      .menu-title h2 { font-size: 43px; }
+      .ai-fab { bottom: 70px; right: 14px; padding: 12px 18px; font-size: 12px; }
+      .ai-chat-window { bottom: 125px; right: 14px; width: calc(100% - 28px); }
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      .qr-preview-card, .qr-preview-card * { visibility: visible; }
+      .qr-preview-card {
+        position: absolute; left: 50%; top: 10%; transform: translateX(-50%);
+        width: 80%; border: 4px solid #b89455; page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-bg" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand-mini" href="#inicio" aria-label="Café Libélula, inicio">
+      <span class="brand-dragonfly">✦</span>
+      <span>CAFÉ LIBÉLULA</span>
+    </a>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="primary-btn" id="openQrBtn" style="padding: 7px 14px; font-size: 9px; cursor: pointer;">📱 QR Mesas</button>
+      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">☰</button>
+    </div>
+  </header>
+
+  <nav class="mobile-nav" id="mobileNav" aria-label="Navegación principal">
+    <a href="#inicio">Inicio</a>
+    <a href="#categorias">Menú</a>
+    <a href="#visitanos">Visítanos</a>
+  </nav>
+
+  <main>
+    <div class="floating-motif motif-left" aria-hidden="true">☕</div>
+    <div class="floating-motif motif-right" aria-hidden="true">✦</div>
+    <section class="hero" id="inicio">
+      <div class="hero-card">
+        <div class="hero-symbol">𓆩✧𓆪</div>
+        <p class="eyebrow">LEÓN · NICARAGUA</p>
+        <h1>CAFÉ<br><span>LIBÉLULA</span></h1>
+        <p class="tagline">Más que un café</p>
+        <p class="hero-copy">Descubre nuestro menú y encuentra tu próximo favorito.</p>
+        <a class="primary-btn" href="#categorias">Explorar menú <span>↓</span></a>
+      </div>
+    </section>
+
+    <section class="section categories" id="categorias">
+      <div class="section-heading">
+        <p class="eyebrow">NUESTRO MENÚ</p>
+        <h2>Elige una categoría</h2>
+        <p>Todo organizado para que encuentres lo que buscas sin perderte.</p>
+      </div>
+
+      <div class="category-grid">
+        <a class="category-card featured-category" href="#buenos-dias"><span class="cat-illustration">☀</span><span><b>¡Buenos Días!</b><small>Desayunos · frutas · omelettes</small></span><i>↗</i></a>
+        <a class="category-card" href="#comidas"><span class="cat-icon">🥪</span><span><b>Comidas</b><small>Crepas, ensaladas y paninis</small></span><i>→</i></a>
+        <a class="category-card" href="#platos"><span class="cat-icon">🍽</span><span><b>Sandwiches & platos</b><small>Good Food, wraps y platos fuertes</small></span><i>→</i></a>
+        <a class="category-card" href="#cafes"><span class="cat-icon">☕</span><span><b>Cafés</b><small>Calientes, intensos y exóticos</small></span><i>→</i></a>
+        <a class="category-card" href="#frios"><span class="cat-icon">🧊</span><span><b>Bebidas frías</b><small>Granizados y café helado</small></span><i>→</i></a>
+        <a class="category-card" href="#sin-cafe"><span class="cat-icon">🥤</span><span><b>Sin café</b><small>Smoothies y otras bebidas</small></span><i>→</i></a>
+      </div>
+    </section>
+
+    <section class="menu-section" id="buenos-dias">
+      <div class="menu-title"><span>☀</span><div><p class="eyebrow">PARA COMENZAR</p><h2>¡Buenos Días!</h2></div></div>
+
+      <div class="menu-card">
+        <h3>Buenos días</h3>
+        <div class="item">
+          <div>
+            <b>Nica</b>
+            <small>Gallo pinto, 2 huevos, queso, maduro frito, crema y pan baguette. <button class="generate-desc-btn" title="Preguntar a IA por este platillo" aria-label="Generar descripción con IA">✨</button></small>
+            <div class="ai-generated-desc"></div>
+          </div>
+          <strong>C$170</strong>
+        </div>
+        <div class="item">
+          <div>
+            <b>Súper Nica</b>
+            <small>Gallo pinto, 2 huevos en salsa ranchera sobre tortilla michoacana, queso fresco, maduro frito y bacon. <button class="generate-desc-btn" title="Preguntar a IA por este platillo" aria-label="Generar descripción con IA">✨</button></small>
+            <div class="ai-generated-desc"></div>
+          </div>
+          <strong>C$200</strong>
+        </div>
+        <div class="item">
+          <div>
+            <b>Ranchero</b>
+            <small>Gallo pinto, 2 huevos, queso, salsa ranchera, salchicha de desayuno y pan baguette. <button class="generate-desc-btn" title="Preguntar a IA por este platillo" aria-label="Generar descripción con IA">✨</button></small>
+            <div class="ai-generated-desc"></div>
+          </div>
+          <strong>C$180</strong>
+        </div>
+        <div class="item">
+          <div>
+            <b>Americano</b>
+            <small>2 huevos, bacon, salchicha de desayuno y pan baguette. <button class="generate-desc-btn" title="Preguntar a IA por este platillo" aria-label="Generar descripción con IA">✨</button></small>
+            <div class="ai-generated-desc"></div>
+          </div>
+          <strong>C$170</strong>
+        </div>
+        <div class="item">
+          <div>
+            <b>Tostada Libélula</b>
+            <small>Rodaja de pan integral con queso mozarella, bacon y un huevo. <button class="generate-desc-btn" title="Preguntar a IA por este platillo" aria-label="Generar descripción con IA">✨</button></small>
+            <div class="ai-generated-desc"></div>
+          </div>
+          <strong>C$165</strong>
+        </div>
+        <div class="item">
+          <div>
+            <b>Tostada Francesa</b>
+            <small>Mermelada de fresa, queso crema, arándanos, banano y frutos secos. <button class="generate-desc-btn" title="Preguntar a IA por este platillo" aria-label="Generar descripción con IA">✨</button></small>
+            <div class="ai-generated-desc"></div>
+          </div>
+          <strong>C$175</strong>
+        </div>
+        <div class="item">
+          <div>
+            <b>Waffles</b>
+            <small><button class="generate-desc-btn" title="Preguntar a IA por este platillo" aria-label="Generar descripción con IA">✨</button></small>
+            <div class="ai-generated-desc"></div>
+          </div>
+          <strong>C$180</strong>
+        </div>
+        <div class="item">
+          <div>
+            <b>Pancakes</b>
+            <small><button class="generate-desc-btn" title="Preguntar a IA por este platillo" aria-label="Generar descripción con IA">✨</button></small>
+            <div class="ai-generated-desc"></div>
+          </div>
+          <strong>C$180</strong>
+        </div>
+        <div class="item">
+          <div>
+            <b>Muffing Inglés</b>
+            <small>Jamón, queso y huevo. <button class="generate-desc-btn" title="Preguntar a IA por este platillo" aria-label="Generar descripción con IA">✨</button></small>
+            <div class="ai-generated-desc"></div>
+          </div>
+          <strong>C$145</strong>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <h3>Frutas</h3>
+        <div class="item"><div><b>Bowl de Frutas</b><small>Con yogurt y granola.</small></div><strong>C$165</strong></div>
+        <div class="item"><div><b>Plato de frutas</b></div><strong>C$135</strong></div>
+      </div>
+
+      <div class="menu-card">
+        <h3>Omelette</h3>
+        <div class="item"><div><b>Libélula</b><small>3 huevos, pollo, hongos, queso mozarella y tomates.</small></div><strong>C$200</strong></div>
+        <div class="item"><div><b>Vegetales</b><small>2 huevos, queso mozarella, espinaca, hongos, tomate, chile dulce y cebolla.</small></div><strong>C$200</strong></div>
+        <div class="item"><div><b>Americano</b><small>2 huevos, salchicha de desayuno, tomate y queso americano.</small></div><strong>C$200</strong></div>
+        <div class="item featured"><div><b>Omelette Fit</b><small>Cinco claras de huevos, espinaca, tomate y frutos secos. Acompañado de ensalada fresca.</small></div><strong>C$230</strong></div>
+        <p class="card-foot">Todos los omelettes son acompañados de pan baguette y mermelada.</p>
+      </div>
+      <a class="back-link" href="#categorias">← Volver al menú</a>
+    </section>
+
+    <section class="menu-section" id="comidas">
+      <div class="menu-title"><span>🥪</span><div><p class="eyebrow">PARA COMPARTIR O DISFRUTAR</p><h2>Comidas</h2></div></div>
+
+      <div class="menu-card">
+        <h3>Crepas Saladas <span class="section-price">C$230</span></h3>
+        <div class="chips"><span>Jamón</span><span>Vegetales</span><span>Pollo</span><span>Pollo y Vegetales</span></div>
+        <p class="card-foot">Todas las crepas contienen queso mozarella.</p>
+      </div>
+
+      <div class="menu-card">
+        <h3>Crepas Dulces <span class="section-price">C$230</span></h3>
+        <div class="chips"><span>Banano con Chocolate</span><span>Fresa con Banano</span><span>Crema de maní y banano</span></div>
+        <p class="card-foot">Acompañadas de helado de vainilla.</p>
+      </div>
+
+      <div class="menu-card">
+        <h3>Ensaladas <span class="section-price">C$310</span></h3>
+        <div class="chips"><span>Pollo</span><span>Atún</span></div>
+      </div>
+
+      <div class="menu-card">
+        <h3>Paninis <span class="section-price">Love</span></h3>
+        <div class="item"><div><b>Pollo con Bacon</b></div><strong>C$370</strong></div>
+        <div class="item"><div><b>Res</b></div><strong>C$380</strong></div>
+        <div class="item"><div><b>Porky BBQ</b></div><strong>C$365</strong></div>
+        <p class="card-foot">Todos los paninis contienen queso mozarella, acompañados de ensalada, papas fritas y Coca-Cola o té frío de limón.</p>
+      </div>
+      <a class="back-link" href="#categorias">← Volver al menú</a>
+    </section>
+
+    <section class="menu-section" id="platos">
+      <div class="menu-title"><span>🍽</span><div><p class="eyebrow">GOOD FOOD</p><h2>Platos y Sandwiches</h2></div></div>
+
+      <div class="menu-card">
+        <h3>Sandwiches</h3>
+        <p class="card-foot">Acompañados con papas fritas. Todos incluyen lechuga, tomate y pepino.</p>
+        <div class="item"><div><b>Atún</b><small>Tipo de pan baguette. Mezcla de atún con aceite de oliva y mayonesa.</small></div><strong>C$290</strong></div>
+        <div class="item"><div><b>Americano</b><small>Tipo de pan baguette. Jamón, queso americano y aderezo de la casa.</small></div><strong>C$290</strong></div>
+        <div class="item"><div><b>Club Sandwich</b><small>Tipo de pan molde. Pollo, tocino, queso americano y aderezo de la casa.</small></div><strong>C$345</strong></div>
+      </div>
+
+      <div class="menu-card">
+        <h3>Wrap</h3>
+        <div class="item"><div><b>Del Huerto Ranch</b><small>Tortilla de harina, trozos de pechuga de pollo, manzana, queso, tomate, pepino, mezclas de lechuga y aderezo ranch.</small></div><strong>C$300</strong></div>
+        <p class="card-foot">Acompañado con papas fritas.</p>
+      </div>
+
+      <div class="menu-card">
+        <h3>Platos fuertes <span class="section-price">C$385</span></h3>
+        <div class="item"><div><b>Filete de Curvina</b><small>Acompañado de arroz, tostones dorados, colorida ensalada de lechuga con vegetales frescos y un delicioso chimol.</small></div><strong></strong></div>
+        <div class="item"><div><b>Lomo de Cerdo</b></div><strong></strong></div>
+        <div class="item"><div><b>Filete de Pollo</b></div><strong></strong></div>
+        <p class="card-foot"><b>Elija sus acompañantes:</b> arroz o gallopinto.</p>
+        <p class="card-foot"><b>Guarniciones a la parrilla:</b> papa, plátano y chorizo parrillero o papas fritas y una fresca ensalada de lechuga y vegetales.</p>
+      </div>
+
+      <div class="menu-card">
+        <div class="item"><div><b>Medallones de Pollo</b><small>Filete relleno de queso mozarella, apio, zanahoria y jamón.</small></div><strong>C$395</strong></div>
+      </div>
+      <a class="back-link" href="#categorias">← Volver al menú</a>
+    </section>
+
+    <section class="menu-section" id="cafes">
+      <div class="menu-title"><span>☕</span><div><p class="eyebrow">MÁS QUE UN CAFÉ</p><h2>Café Libélula</h2></div></div>
+
+      <div class="menu-card">
+        <h3>Cafés Calientes <span class="sizes">12 oz · 16 oz</span></h3>
+        <div class="item"><div><b>Café Long Black</b><small>Café negro intenso.</small></div><strong>C$115</strong></div>
+        <div class="item"><div><b>Café Nica</b></div><strong>C$100 · C$110</strong></div>
+        <div class="item"><div><b>Café con leche</b></div><strong>C$105 · C$115</strong></div>
+        <div class="item"><div><b>Café latte</b></div><strong>C$110 · C$120</strong></div>
+        <div class="item"><div><b>Mielatte Espumoso</b><small>Leche vaporizada con miel de abeja natural que realza el sabor del espresso.</small></div><strong>C$125</strong></div>
+      </div>
+
+      <div class="menu-card">
+        <h3>Capuccinos <span class="sizes">12 oz · 16 oz · Doble espresso</span></h3>
+        <div class="item"><div><b>Capuccino Tradicional</b></div><strong>C$110 · C$120</strong></div>
+        <div class="item"><div><b>Capuccino Supremo</b></div><strong>C$120 · C$130</strong></div>
+        <div class="item"><div><b>Oreo Capuccino</b></div><strong>C$120 · C$130</strong></div>
+        <div class="item"><div><b>Capuccino Saborizado</b></div><strong>C$120 · C$130</strong></div>
+        <p class="card-foot"><b>Elige tu sabor favorito:</b> Mocca · Caramelo · Vainilla · Irlandesa · Crema · Leche condensada · Amaretto</p>
+      </div>
+
+      <div class="menu-card">
+        <h3>Cafés Exóticos <span class="sizes">Doble espresso</span></h3>
+        <div class="item"><div><b>Capuccino Libélula</b><small>3 shot espresso, sirope de vainilla. 20 oz.</small></div><strong>C$150</strong></div>
+        <div class="item"><div><b>Dalgona Coffee Latte</b><small>Una cremosa nube de café batido sobre leche fría.</small></div><strong>C$135</strong></div>
+        <div class="item"><div><b>Affogato</b><small>Helado de vainilla cubierto con café espresso.</small></div><strong>C$160</strong></div>
+        <div class="item"><div><b>Moccachino</b></div><strong>C$135</strong></div>
+        <div class="item"><div><b>Mocca Mint Latte</b></div><strong>C$135</strong></div>
+      </div>
+
+      <div class="menu-card">
+        <h3>Cafés Intensos</h3>
+        <div class="item"><div><b>Espresso</b></div><strong>C$100</strong></div>
+        <div class="item"><div><b>Espresso Machiato</b></div><strong>C$115</strong></div>
+        <div class="item"><div><b>Cortadito</b></div><strong>C$110</strong></div>
+        <div class="item"><div><b>Café Bombón</b></div><strong>C$115</strong></div>
+      </div>
+      <a class="back-link" href="#categorias">← Volver al menú</a>
+    </section>
+
+    <section class="menu-section" id="frios">
+      <div class="menu-title"><span>🧊</span><div><p class="eyebrow">REFRESCANTE</p><h2>Bebidas Frías</h2></div></div>
+
+      <div class="menu-card">
+        <h3>Granizados <span class="section-price">C$140</span></h3>
+        <p class="card-foot">Elige tu sabor favorito:</p>
+        <div class="chips"><span>Caramelo</span><span>Maní</span><span>Mocca</span><span>Mocca banano</span><span>Oreo</span></div>
+        <p class="add-on">Agrega helado de vainilla <b>+ C$50</b></p>
+      </div>
+
+      <div class="menu-card">
+        <h3>Café Helado</h3>
+        <div class="item"><div><b>Orange Coffee</b><small>Café espresso + jugo de naranja.</small></div><strong>C$140</strong></div>
+        <div class="item"><div><b>Black honey coffee</b><small>Miel, café espresso, leche espumada y cubos de hielo.</small></div><strong>C$140</strong></div>
+        <div class="item"><div><b>Lemon honey coffee</b><small>Espresso, leche, helado de vainilla y cubos de hielo.</small></div><strong>C$140</strong></div>
+        <div class="item"><div><b>Ice Latte Affogato</b><small>Espresso, leche, helado de vainilla y cubos de hielo.</small></div><strong>C$160</strong></div>
+        <div class="item"><div><b>Ice Coffee</b><small>Espresso y cubos de hielo.</small></div><strong>C$130</strong></div>
+        <div class="item"><div><b>Ice Latte</b><small>Espresso, leche y cubos de hielo.</small></div><strong>C$130</strong></div>
+        <p class="card-foot"><b>Elige tu sabor favorito:</b> Caramelo · Menta · Mocca · Amaretto · Vainilla</p>
+      </div>
+      <a class="back-link" href="#categorias">← Volver al menú</a>
+    </section>
+
+    <section class="menu-section" id="sin-cafe">
+      <div class="menu-title"><span>🥤</span><div><p class="eyebrow">PARA TODOS</p><h2>Sin Café</h2></div></div>
+
+      <div class="menu-card">
+        <h3>Sin Café</h3>
+        <div class="item"><div><b>Taza de Leche</b></div><strong>C$75</strong></div>
+        <div class="item"><div><b>Chocolate Caliente</b></div><strong>C$115</strong></div>
+        <div class="item"><div><b>Chai Latte</b><small>Infusión de té con especies con leche vaporizada.</small></div><strong>C$105</strong></div>
+        <div class="item"><div><b>Té Caliente</b><small>Consultar sabores disponibles.</small></div><strong>C$95</strong></div>
+      </div>
+
+      <div class="menu-card">
+        <h3>Smoothies <span class="section-price">C$135</span></h3>
+        <div class="bullet-list"><span>Libélula — Sandía, papaya, piña y banano</span><span>Piña, Banano, Naranja</span><span>Fresa, Banano, Limón</span><span>Zanahoria con Naranja</span><span>Remolacha con Naranja</span></div>
+      </div>
+
+      <div class="menu-card">
+        <h3>Green Vibes <span class="section-price">C$120</span></h3>
+        <div class="bullet-list"><span>Apio, Perejil, Piña y Naranja</span><span>Hierba buena con Naranja</span><span>Pepino, Piña y Espinaca</span></div>
+      </div>
+
+      <div class="menu-card">
+        <h3>Otras Bebidas <span class="section-price">C$70</span></h3>
+        <div class="item"><div><b>Té de Limón</b></div></div>
+        <div class="item"><div><b>Té de Jamaica</b></div></div>
+        <div class="item"><div><b>Jugo de Naranja</b></div></div>
+        <div class="item"><div><b>Gaseosas en Lata</b></div><strong>C$55</strong></div>
+      </div>
+      <a class="back-link" href="#categorias">← Volver al menú</a>
+    </section>
+
+    <section class="visit-section" id="visitanos">
+      <div class="visit-card">
+        <p class="eyebrow">EN LEÓN, NICARAGUA</p>
+        <h2>Visítanos</h2>
+        <div class="location-line"><span>📍</span><div><b>Referencia principal</b><p>Santuario San Francisco de Asís, León — media cuadra al oeste.</p></div></div>
+        <div class="location-line"><span>📍</span><div><b>Otra referencia</b><p>Colegio La Salle — media cuadra al este.</p></div></div>
+        <div class="contact-placeholder"><span>📲</span><div><b>Reservaciones y consultas</b><p>Llámanos vía WhatsApp al <strong>8493-4505</strong>.</p><a class="whatsapp-btn" href="https://wa.me/50584934505" target="_blank" rel="noopener">Abrir WhatsApp →</a></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-logo">CAFÉ LIBÉLULA</div>
+    <p>Más que un café</p>
+    <small>León, Nicaragua · Menú digital</small>
+  </footer>
+
+  <div id="qrModal" class="qr-modal-overlay" aria-hidden="true">
+    <div class="qr-card-container">
+      <button id="closeQrBtn" class="qr-close-btn" aria-label="Cerrar modal">&times;</button>
+      <h2 style="font-family:'Cormorant Garamond',serif; font-size:28px; margin:0 0 4px; color:var(--green);">Código QR para Mesas</h2>
+      <p style="font-size:11px; color:var(--muted); margin:0 0 14px;">Descarga o imprime el distintivo oficial con el emblema de la libélula para tus clientes.</p>
+
+      <div id="qrPrintArea" class="qr-preview-card">
+        <div style="font-size:22px; color:var(--gold-light); margin-bottom:2px;">𓆩✧𓆪</div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; letter-spacing:0.08em; color:var(--gold-light);">CAFÉ LIBÉLULA</div>
+        <div style="font-size:10px; letter-spacing:0.18em; color:var(--cream); margin-bottom:12px;">MÁS QUE UN CAFÉ · LEÓN, NICARAGUA</div>
+
+        <div class="qr-frame">
+          <div id="qrcode"></div>
+          <div class="qr-dragonfly-overlay" title="Café Libélula">𓆩✧𓆪</div>
+        </div>
+
+        <p style="font-size:12px; font-weight:700; color:var(--gold-light); margin:8px 0 2px;">ESCANEA PARA VER NUESTRO MENÚ</p>
+        <p style="font-size:9.5px; color:#c7bea8; margin:0;">Apunta la cámara de tu teléfono para acceder al menú digital</p>
+      </div>
+
+      <div class="qr-input-group">
+        <label for="qrUrlInput">Enlace de tu sitio web (puedes editarlo si usas un dominio propio):</label>
+        <input type="url" id="qrUrlInput" value="https://cafelibelula.com" placeholder="https://tu-dominio.com">
+      </div>
+
+      <div class="qr-actions">
+        <button id="downloadQrBtn" class="qr-btn qr-btn-primary">⬇ Descargar Imagen PNG HD</button>
+        <button id="printQrBtn" class="qr-btn qr-btn-secondary">🖨 Imprimir Cartelito</button>
+      </div>
+    </div>
+  </div>
+
+  <button id="aiFab" class="ai-fab" aria-label="Asistente Virtual">✨ Barista Virtual</button>
+  
+  <div id="aiChatWindow" class="ai-chat-window">
+    <div class="ai-chat-header">
+      <div>
+        <b>Barista Virtual</b>
+        <div style="font-size: 10px; color: var(--gold-light); letter-spacing: 0.05em;">Powered by Gemini</div>
+      </div>
+      <button id="aiCloseBtn" aria-label="Cerrar chat">&times;</button>
+    </div>
+    <div id="aiChatMessages" class="ai-chat-messages">
+      <div class="ai-msg">¡Hola! Soy tu barista virtual ☕. Puedo recomendarte platillos y bebidas de nuestro menú según lo que se te antoje. ¿Qué tienes en mente hoy?</div>
+      <div id="aiLoading" class="ai-loading">El barista está escribiendo...</div>
+    </div>
+    <div class="ai-chat-input">
+      <input type="text" id="aiUserInput" placeholder="Ej. Quiero algo frío y dulce..." autocomplete="off">
+      <button id="aiSendBtn">Enviar</button>
+    </div>
+  </div>
+
+  <script>
+    const toggle = document.getElementById('menuToggle');
+    const nav = document.getElementById('mobileNav');
+
+    if (toggle && nav) {
+      toggle.addEventListener('click', () => {
+        nav.classList.toggle('open');
+      });
+
+      document.querySelectorAll('.mobile-nav a').forEach(link => {
+        link.addEventListener('click', () => {
+          nav.classList.remove('open');
+        });
+      });
+    }
+
+    // AI Chat elements
+    const aiFab = document.getElementById('aiFab');
+    const aiChatWindow = document.getElementById('aiChatWindow');
+    const aiCloseBtn = document.getElementById('aiCloseBtn');
+    const aiSendBtn = document.getElementById('aiSendBtn');
+    const aiUserInput = document.getElementById('aiUserInput');
+    const aiChatMessages = document.getElementById('aiChatMessages');
+    const aiLoading = document.getElementById('aiLoading');
+
+    if (aiFab && aiChatWindow) {
+      aiFab.addEventListener('click', () => {
+        aiChatWindow.classList.toggle('open');
+      });
+    }
+
+    if (aiCloseBtn && aiChatWindow) {
+      aiCloseBtn.addEventListener('click', () => {
+        aiChatWindow.classList.remove('open');
+      });
+    }
+
+    const dishPairings = {
+      'Nica': '✨ <b>Maridaje Recomendado:</b> Queda espectacular con un <b>Capuccino Tradicional</b> (C$110) o un <b>Café Nica</b> caliente. La cremosidad de la leche espumada equilibra el sazón del gallo pinto y el queso frito.',
+      'Súper Nica': '✨ <b>Maridaje Recomendado:</b> Pídelo con un <b>Capuccino Libélula</b> (con 3 shots de espresso) o un <b>Smoothie de Naranja con Zanahoria</b>. Combina ideal para contrarrestar la intensidad del tocino y la salsa ranchera.',
+      'Ranchero': '✨ <b>Maridaje Recomendado:</b> Cae genial con un <b>Mielatte Espumoso</b> (C$125) o un <b>Café Long Black</b>. La miel de abeja natural le da un contraste dulce perfecto a las salchichas y la salsa ranchera.',
+      'Americano': '✨ <b>Maridaje Recomendado:</b> Va de maravilla con un <b>Café con Leche</b> caliente o un <b>Orange Coffee</b> helado para un toque cítrico y refrescante.',
+      'Tostada Libélula': '✨ <b>Maridaje Recomendado:</b> Acompáñala de un <b>Ice Latte</b> o un <b>Té Frío de Limón</b> para una combinación fresca y crujiente.',
+      'Tostada Francesa': '✨ <b>Maridaje Recomendado:</b> Su mejor pareja es un <b>Smoothie Libélula</b> (sandía, papaya, piña y banano) o un <b>Capuccino de Vainilla</b>. ¡Una explosión dulce en el paladar!',
+      'Waffles': '✨ <b>Maridaje Recomendado:</b> Te sugerimos un <b>Granizado de Mocca Banano</b> o un <b>Moccachino</b> caliente.',
+      'Pancakes': '✨ <b>Maridaje Recomendado:</b> Queda perfecto con un <b>Chai Latte</b> especiado con leche vaporizada o un <b>Café Latte</b> cremoso.',
+      'Muffing Inglés': '✨ <b>Maridaje Recomendado:</b> Acompáñalo con un <b>Black Honey Coffee</b> helado o un <b>Capuccino Supremo</b>.'
+    };
+
+    function getPairingForDish(dishName) {
+      for (const [key, pairing] of Object.entries(dishPairings)) {
+        if (dishName.toLowerCase().includes(key.toLowerCase())) {
+          return pairing;
+        }
+      }
+      return `✨ <b>Maridaje Recomendado:</b> El platillo "${dishName}" se ve y sabe mejor combinado con un <b>Capuccino Tradicional</b> bien cremoso o un <b>Smoothie Frutal</b> de la casa.`;
+    }
+
+    function getBaristaResponse(query) {
+      const q = query.toLowerCase();
+
+      // Combinaciones y maridajes prácticos por tipo de platillo
+      if (q.includes('nica') || q.includes('super nica') || q.includes('súper nica')) {
+        return "El **Desayuno Nica** o **Súper Nica** sabe y se ve increíble si lo acompañas con un **Capuccino Tradicional** (C$110) o un **Café Nica** bien colado. La espuma cremosa equilibra a la perfección el sazón saladito del gallo pinto, el queso y el maduro frito ☕🍳.";
+      } else if (q.includes('ranchero') || q.includes('americano')) {
+        return "El **Desayuno Ranchero** o **Americano** se disfruta mucho mejor con un **Mielatte Espumoso** (C$125) o un **Café Long Black** (C$115). La dulzura suave de la miel contrasta perfecto con el tocino y la salchicha.";
+      } else if (q.includes('tostada') || q.includes('francesa') || q.includes('waffle') || q.includes('pancake')) {
+        return "Para opciones dulces como la **Tostada Francesa**, **Waffles** o **Pancakes**, te sugiero combinarlos con un **Smoothie Libélula** de frutas (C$135) o un **Capuccino Saborizado de Vainilla** (C$120). ¡Se ven bellísimos juntos y el contraste de sabores es único! 🧇🍓";
+      } else if (q.includes('omelette') || q.includes('fit')) {
+        return "Un **Omelette** (como el Omelette Fit o Libélula) va genial con un **Café con Leche** caliente (C$105) o con una bebida verde **Green Vibes** (Apio, Piña y Espinaca) si buscas un inicio de mañana súper fresco y saludable 🌿.";
+      } else if (q.includes('panini') || q.includes('sandwich') || q.includes('wrap') || q.includes('club')) {
+        return "Para un **Panini** o **Club Sandwich**, la combinación práctica ganadora es un **Granizado de Caramelo o Mocca** (C$140) o un **Té Frío de Limón**. El crujiente del pan caliente con la bebida bien helada es una delicia 🥪🧊.";
+      } else if (q.includes('crepa') || q.includes('crepas')) {
+        return "Si eliges **Crepas Saladas**, combínalas con un **Ice Latte** (C$130). Si pides **Crepas Dulces**, no hay nada mejor que maridarlas con un **Espresso doble** o un **Affogato** con helado (C$160) 🍨.";
+      } else if (q.includes('plato') || q.includes('curvina') || q.includes('pollo') || q.includes('lomo') || q.includes('almuerzo')) {
+        return "Para un plato fuerte como el **Filete de Curvina** o **Medallones de Pollo**, pídelo con un **Jugo de Naranja Natural** (C$70) o un **Smoothie de Zanahoria con Naranja** (C$135) para acompañar los acompañantes a la parrilla 🍽.";
+      } else if (q.includes('frí') || q.includes('frio') || q.includes('fria') || q.includes('helad') || q.includes('hielo')) {
+        return "Para refrescarte te sugiero combinar un **Panini de Res** con un **Ice Latte Affogato** (C$160) o un **Granizado de Mocca Banano** (C$140). ¡Combinación 10/10!";
+      } else if (q.includes('desayun') || q.includes('mañana')) {
+        return "Para el desayuno, nuestra combinación estrella es el **Súper Nica** (C$200) maridado con un **Capuccino Tradicional** (C$110), o una **Tostada Francesa** acompañada de un **Mielatte Espumoso**.";
+      } else if (q.includes('dulce') || q.includes('postre')) {
+        return "Prueba combinar nuestra **Crepa Dulce de Fresa con Banano** (C$230) con un **Café Espresso** o un **Affogato** (C$160). La amargura limpia del espresso corta la dulzura de la crepa.";
+      } else if (q.includes('café') || q.includes('cafe') || q.includes('capuccino') || q.includes('espresso')) {
+        return "Si buscas buen café, te sugiero acompañar un **Capuccino Libélula** (20 oz con 3 shots espresso) con una **Tostada Libélula** o un **Muffing Inglés**.";
+      } else if (q.includes('saludable') || q.includes('fit') || q.includes('jugo') || q.includes('smoothie')) {
+        return "Prueba la combinación fit: un **Omelette Fit** de 5 claras con espinaca (C$230) maridado con un jugo **Green Vibes** (C$120) o un **Bowl de Frutas** con yogurt.";
+      } else {
+        return "¡Con gusto! Dime qué plato estás pensando pedir (ej. *Nica, Ranchero, Panini, Crepa, Omelette, Tostada Francesa*) y te diré exactamente con qué café, granizado o smoothie sabe y se ve mejor ☕🥪.";
+      }
+    }
+
+    function sendMessage() {
+      if (!aiUserInput) return;
+      const text = aiUserInput.value.trim();
+      if (!text) return;
+
+      const userMsgDiv = document.createElement('div');
+      userMsgDiv.className = 'user-msg';
+      userMsgDiv.textContent = text;
+      aiChatMessages.insertBefore(userMsgDiv, aiLoading);
+
+      aiUserInput.value = '';
+      aiLoading.style.display = 'block';
+      aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+
+      setTimeout(() => {
+        aiLoading.style.display = 'none';
+        const aiMsgDiv = document.createElement('div');
+        aiMsgDiv.className = 'ai-msg';
+        aiMsgDiv.innerHTML = getBaristaResponse(text);
+        aiChatMessages.insertBefore(aiMsgDiv, aiLoading);
+        aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+      }, 600);
+    }
+
+    if (aiSendBtn) {
+      aiSendBtn.addEventListener('click', sendMessage);
+    }
+    if (aiUserInput) {
+      aiUserInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+      });
+    }
+
+    document.querySelectorAll('.generate-desc-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const itemDiv = btn.closest('.item');
+        if (!itemDiv) return;
+        
+        const titleEl = itemDiv.querySelector('b');
+        const descBox = itemDiv.querySelector('.ai-generated-desc');
+        if (!titleEl || !descBox) return;
+
+        const dishName = titleEl.textContent;
+        
+        if (descBox.style.display === 'block') {
+          descBox.style.display = 'none';
+          return;
+        }
+
+        descBox.style.display = 'block';
+        descBox.classList.add('loading');
+        descBox.textContent = 'Consultando sugerencia del barista...';
+
+        setTimeout(() => {
+          descBox.classList.remove('loading');
+          descBox.innerHTML = getPairingForDish(dishName.trim());
+        }, 350);
+      });
+    });
+
+    let qrInstance = null;
+
+    function generateQRCode(url) {
+      const qrContainer = document.getElementById("qrcode");
+      if (!qrContainer) return;
+      qrContainer.innerHTML = "";
+
+      if (typeof QRCode !== 'undefined') {
+        qrInstance = new QRCode(qrContainer, {
+          text: url,
+          width: 180,
+          height: 180,
+          colorDark: "#112218",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      }
+    }
+
+    const openQrBtn = document.getElementById('openQrBtn');
+    const closeQrBtn = document.getElementById('closeQrBtn');
+    const qrModal = document.getElementById('qrModal');
+    const qrUrlInput = document.getElementById('qrUrlInput');
+    const downloadQrBtn = document.getElementById('downloadQrBtn');
+    const printQrBtn = document.getElementById('printQrBtn');
+
+    if (window.location.protocol.startsWith('http')) {
+      if (qrUrlInput) qrUrlInput.value = window.location.href;
+    }
+
+    if (openQrBtn && qrModal) {
+      openQrBtn.addEventListener('click', () => {
+        qrModal.classList.add('open');
+        qrModal.setAttribute('aria-hidden', 'false');
+        generateQRCode(qrUrlInput ? (qrUrlInput.value || 'https://cafelibelula.com') : 'https://cafelibelula.com');
+      });
+    }
+
+    if (closeQrBtn && qrModal) {
+      closeQrBtn.addEventListener('click', () => {
+        qrModal.classList.remove('open');
+        qrModal.setAttribute('aria-hidden', 'true');
+      });
+    }
+
+    if (qrUrlInput) {
+      qrUrlInput.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        if (val) generateQRCode(val);
+      });
+    }
+
+    if (downloadQrBtn) {
+      downloadQrBtn.addEventListener('click', () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const width = 600;
+        const height = 820;
+        canvas.width = width;
+        canvas.height = height;
+
+        // Background Gradient
+        const gradient = ctx.createLinearGradient(0, 0, 0, height);
+        gradient.addColorStop(0, '#112218');
+        gradient.addColorStop(1, '#182e21');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+
+        // Gold Outer Border
+        ctx.strokeStyle = '#b89455';
+        ctx.lineWidth = 6;
+        ctx.strokeRect(20, 20, width - 40, height - 40);
+
+        // Gold Inner Border
+        ctx.strokeStyle = '#e5c989';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(28, 28, width - 56, height - 56);
+
+        // Header Text
+        ctx.fillStyle = '#e5c989';
+        ctx.font = '32px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('𓆩✧𓆪', width / 2, 95);
+
+        ctx.font = 'bold 38px Georgia, serif';
+        ctx.fillText('CAFÉ LIBÉLULA', width / 2, 148);
+
+        ctx.fillStyle = '#f4ead6';
+        ctx.font = '14px sans-serif';
+        ctx.fillText('MÁS QUE UN CAFÉ · LEÓN, NICARAGUA', width / 2, 182);
+
+        // Render QR
+        const qrImg = document.querySelector('#qrcode img') || document.querySelector('#qrcode canvas');
+        if (qrImg) {
+          const qrSize = 320;
+          const qrX = (width - qrSize) / 2;
+          const qrY = 225;
+
+          ctx.fillStyle = '#ffffff';
+          if (ctx.roundRect) {
+            ctx.beginPath();
+            ctx.roundRect(qrX - 22, qrY - 22, qrSize + 44, qrSize + 44, 24);
+            ctx.fill();
+          } else {
+            ctx.fillRect(qrX - 22, qrY - 22, qrSize + 44, qrSize + 44);
+          }
+          ctx.strokeStyle = '#e5c989';
+          ctx.lineWidth = 4;
+          ctx.stroke();
+
+          ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+
+          // Central Overlay Emblem
+          const badgeRadius = 42;
+          const badgeX = width / 2;
+          const badgeY = qrY + (qrSize / 2);
+
+          ctx.beginPath();
+          ctx.arc(badgeX, badgeY, badgeRadius, 0, Math.PI * 2);
+          ctx.fillStyle = '#112218';
+          ctx.fill();
+          ctx.strokeStyle = '#b89455';
+          ctx.lineWidth = 4;
+          ctx.stroke();
+
+          ctx.fillStyle = '#e5c989';
+          ctx.font = 'bold 30px sans-serif';
+          ctx.fillText('𓆩✧𓆪', badgeX, badgeY + 10);
+        }
+
+        // Footer Text
+        ctx.fillStyle = '#e5c989';
+        ctx.font = 'bold 22px Georgia, serif';
+        ctx.fillText('ESCANEA PARA VER NUESTRO MENÚ', width / 2, 645);
+
+        ctx.fillStyle = '#c7bea8';
+        ctx.font = '16px sans-serif';
+        ctx.fillText('Apunta la cámara de tu teléfono para acceder al menú digital', width / 2, 685);
+
+        ctx.fillStyle = '#896a2f';
+        ctx.font = '14px Georgia, serif';
+        ctx.fillText('✦ León, Nicaragua ✦', width / 2, 745);
+
+        const link = document.createElement('a');
+        link.download = 'Cafe_Libelula_Codigo_QR_Mesas.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    if (printQrBtn) {
+      printQrBtn.addEventListener('click', () => {
+        window.print();
+      });
+    }
+  </script>
+</body>
+</html>
